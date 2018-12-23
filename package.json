@@ -8,9 +8,16 @@
     "jade": ">= 0.25.0",
     "konphyg": ">= 1.0.5",
     "oembed": ">= 0.1.0",
-    "rss": ">= 0.0.3"
+    "pug": "^2.0.3",
+    "rss": ">= 0.0.3",
+    "validator": "^10.10.0"
   },
-  "keywords": ["mixcloud", "rss", "oembed", "feed"],
+  "keywords": [
+    "mixcloud",
+    "rss",
+    "oembed",
+    "feed"
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/meloncholy/mixcloud-rss.git"

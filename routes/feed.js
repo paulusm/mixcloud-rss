@@ -22,9 +22,9 @@ var feed = function () {
 	// Build RSS feed. Start by requesting user stream.
 
 	exports.index = function (req, res) {
-		var user = sanitize(req.params.user).xss();
+		var user = req.params.user;
 		var stuff = { req: req, res: res, user: user };
-		var streamUrl = settings.cloudcastStreamUrl.replace("%user", user);
+		var streamUrl = settings.cloudcastStreamUrl.replace("%mixer", user);
 
 		oembed.fetchJSON(streamUrl, function (error, result) { fetchCloudcasts(stuff, error, result); });
 	};
@@ -47,7 +47,7 @@ var feed = function () {
 		var cloudcasts = result.data;
 		var cloudcastUrl = settings.cloudcastOembedUrl;
 		// Skip "\'s Cloudcasts"
-		var author = sanitize(result.name).xss().slice(0, -13);
+		var author = result.name;
 
 		stuff.length = cloudcasts.length;
 		stuff.count = 0;
@@ -55,7 +55,7 @@ var feed = function () {
 		// Initialise RSS object
 		stuff.feed = new RSS({
 			title: result.name,
-			description: settings.rssDescription.replace("%user", author),
+			description: settings.rssDescription.replace("%mixer", author),
 			feed_url: settings.url + stuff.req.url.substring(1),
 			site_url: settings.url,
 			// image_url: 'http://example.com/icon.png',
@@ -89,7 +89,7 @@ var feed = function () {
 		if (stuff.length > 0) {
 			// Add post to feed.
 			stuff.feed.item({
-				title: sanitize(result.title).xss(),
+				title: result.title,
 				description: result.html,
 				url: info.url,
 				author: result.author_name,
@@ -101,7 +101,7 @@ var feed = function () {
 			// Sort (as requests may return out of order) and render.
 			stuff.feed.items.sort(function (a, b) { return b.date - a.date; });
 		}
-
+		stuff.res.type('application/xml');
 		stuff.res.render("feed", { xml: stuff.feed.xml("\t"), layout: false });
 	}
 

@@ -22,28 +22,25 @@ var routes = {};
 routes.site = require("./routes/site");
 routes.feed = require("./routes/feed");
 
-var app = module.exports = express.createServer();
+var app = module.exports = express()
 
-app.configure(function () {
-	app.set("env", global.mcSettings.mode);
-	app.set("views", __dirname + "/views");
-	app.set("view engine", "jade");
-	app.use(express.bodyParser());
-	app.use(express.methodOverride());
-	// Put static before router to check for real files first, a la .htaccess
-	app.use(express.static(__dirname + "/public"));
-	app.use(app.router);
-});
 
-app.configure("development", function() {
-	app.use(express.logger());
-	app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
-});
+app.set("env", global.mcSettings.mode);
+app.set("views", __dirname + "/views");
+app.set("view engine", "jade");
+//app.use(express.bodyParser());
+//app.use(express.methodOverride());
+// Put static before router to check for real files first, a la .htaccess
+app.use(express.static(__dirname + "/public"));
+//app.use(app.router);
 
-app.configure("production", function() {
-	app.use(express.errorHandler());
-});
+//app.use(express.logger());
+//app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
 
+//prod
+//app.use(express.errorHandler());
+
+app.listen(3000);
 
 // Routes
 // Make sure you have a favicon or this will request user favicon.ico from MixCloud
@@ -51,5 +48,7 @@ app.get("/:user/test", routes.feed.test);
 app.get("/:user", routes.feed.index);
 app.get("/", routes.site.index);
 
-app.listen(config("app").localPort);
-console.log("We're up on port %d in %s mode.", app.address().port, app.settings.env);
+app.listen(5000);
+
+//app.listen(config("app").localPort);
+//console.log("We're up on port %d in %s mode.", app.address().port, app.settings.env);
