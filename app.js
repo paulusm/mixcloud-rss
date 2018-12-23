@@ -40,7 +40,7 @@ app.use(express.static(__dirname + "/public"));
 //prod
 //app.use(express.errorHandler());
 
-app.listen(3000);
+//app.listen(3000);
 
 // Routes
 // Make sure you have a favicon or this will request user favicon.ico from MixCloud
@@ -48,7 +48,7 @@ app.get("/:user/test", routes.feed.test);
 app.get("/:user", routes.feed.index);
 app.get("/", routes.site.index);
 
-app.listen(5000);
+app.listen(8000);
 
 //app.listen(config("app").localPort);
 //console.log("We're up on port %d in %s mode.", app.address().port, app.settings.env);

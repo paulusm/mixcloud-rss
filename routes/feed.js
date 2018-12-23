@@ -92,6 +92,10 @@ var feed = function () {
 				title: result.title,
 				description: result.html,
 				url: info.url,
+				enclosure: {
+					'url'  : info.url.replace("https://www.mixcloud.com","http://www.mixcloud-downloader.com/dl/mixcloud"),
+					'type' : 'audio/mpeg'
+				  },
 				author: result.author_name,
 				date: info.date
 			});
