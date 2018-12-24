@@ -13,6 +13,7 @@
 var RSS = require("rss");
 var oembed = require("oembed");
 var sanitize = require("validator").sanitize;
+var req = require("request");
 
 var feed = function () {
 	var exports = {};
@@ -54,7 +55,7 @@ var feed = function () {
 
 		// Initialise RSS object
 		stuff.feed = new RSS({
-			title: result.name,
+			title: "mixcloud " + author,
 			description: settings.rssDescription.replace("%mixer", author),
 			feed_url: settings.url + stuff.req.url.substring(1),
 			site_url: settings.url,
@@ -68,12 +69,28 @@ var feed = function () {
 			// Each post has to be requested separately.
 			for (var i = 0, len = cloudcasts.length; i < len; i++) {
 				(function (cloudcast) {
-					oembed.fetchJSON(cloudcastUrl.replace("%cloudcast", cloudcast.key), function (error, result) { renderFeed(stuff, { url: cloudcast.url, date: new Date(cloudcast.created_time) }, error, result); });
+					oembed.fetchJSON(cloudcastUrl.replace("%cloudcast", cloudcast.key), function (error, result) { getStream(stuff, { url: cloudcast.url, date: new Date(cloudcast.created_time) }, error, result); });
 				})(cloudcasts[i]);
 			}
 		}
 	}
 
+	var getStream = function (stuff, info, error, result){
+		var lnk = info.url.replace("https://www.mixcloud.com","http://www.mixcloud-downloader.com/s/mixcloud")
+		req.get(lnk,function(err,res,data){
+			if(err){
+				return(err);
+			}
+			else{
+				var href = data.match(/mb-1\" href=\"([^"]*)\">/);
+				//console.log(href[1]);
+				if (href && href.length > 0){
+					info.url = href[1];
+				}
+				return renderFeed(stuff, info, error, result)
+			}
+		})
+	}
 
 	// Build and render RSS feed for stream.
 
@@ -90,11 +107,12 @@ var feed = function () {
 			// Add post to feed.
 			stuff.feed.item({
 				title: result.title,
-				description: result.html,
+				description: result.title,
 				url: info.url,
 				enclosure: {
-					'url'  : info.url.replace("https://www.mixcloud.com","http://www.mixcloud-downloader.com/dl/mixcloud"),
-					'type' : 'audio/mpeg'
+					'url'  : info.url,
+					'type' : 'audio/mp4',
+					'size' : '1'
 				  },
 				author: result.author_name,
 				date: info.date
@@ -153,10 +171,11 @@ var feed = function () {
 			return;
 		}
 
-		stuff.res.json({ author: info.author, title: sanitize(result.title).xss(), html: result.html });
+		stuff.res.json({ author: info.author, title: result.title, html: result.html });
 	}
 
 	return exports;
 };
 
 module.exports = feed();
+

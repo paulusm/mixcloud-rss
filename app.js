@@ -17,6 +17,25 @@ global.mcSettings = { app: config("app") };
 if (global.mcSettings.app.url.substr(-1) != "/") global.mcSettings.app.url += "/";
 
 var express = require("express");
+var mcache = require('memory-cache');
+
+var cache = (duration) => {
+    return (req, res, next) => {
+      let key = '__express__' + req.originalUrl || req.url
+      let cachedBody = mcache.get(key)
+      if (cachedBody) {
+        res.send(cachedBody)
+        return
+      } else {
+        res.sendResponse = res.send
+        res.send = (body) => {
+          mcache.put(key, body, duration * 1000);
+          res.sendResponse(body)
+        }
+        next()
+      }
+    }
+  }
 
 var routes = {};
 routes.site = require("./routes/site");
@@ -45,7 +64,7 @@ app.use(express.static(__dirname + "/public"));
 // Routes
 // Make sure you have a favicon or this will request user favicon.ico from MixCloud
 app.get("/:user/test", routes.feed.test);
-app.get("/:user", routes.feed.index);
+app.get("/:user", cache(60*60*8), routes.feed.index);
 app.get("/", routes.site.index);
 
 app.listen(8000);
